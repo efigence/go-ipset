@@ -97,14 +97,30 @@ func (s *IPSetNet) Swap(newName string) error {
 	return nil
 }
 
-// Add an element. adding same element twice is no-op
-func (s *IPSetNet) Add(ip *net.IPNet) error {
+// AddNet an element. adding same element twice is no-op
+func (s *IPSetNet) AddNet(ip *net.IPNet) error {
 	return runError(exec.Command(bin, "add", "-exist", s.name, ip.String()))
 }
 
-// Delete an element. Deleting nonexistend element is noop
-func (s *IPSetNet) Delete(ip *net.IPNet) error {
+// DeleteNet an element. Deleting nonexistend element is noop
+func (s *IPSetNet) DeleteNet(ip *net.IPNet) error {
 	return runError(exec.Command(bin, "del", "-exist", s.name, ip.String()))
+}
+
+func (s *IPSetNet) Add(subnet string) error {
+	_, n, err := net.ParseCIDR(subnet)
+	if err != nil {
+		return err
+	}
+	return s.AddNet(n)
+}
+
+func (s *IPSetNet) Delete(subnet string) error {
+	_, n, err := net.ParseCIDR(subnet)
+	if err != nil {
+		return err
+	}
+	return s.DeleteNet(n)
 }
 
 func (s *IPSetNet) Destroy() error {

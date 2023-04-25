@@ -96,14 +96,32 @@ func (s *IPSetIP) Swap(newName string) error {
 	return nil
 }
 
-// Add an element. adding same element twice is no-op
-func (s *IPSetIP) Add(ip net.IP) error {
+// AddNet an element. adding same element twice is no-op
+func (s *IPSetIP) AddIP(ip net.IP) error {
 	return runError(exec.Command(bin, "add", "-exist", s.name, ip.String()))
 }
 
-// Delete an element. Deleting nonexistend element is noop
-func (s *IPSetIP) Delete(ip net.IP) error {
+// DeleteNet an element. Deleting nonexistend element is noop
+func (s *IPSetIP) DeleteIP(ip net.IP) error {
 	return runError(exec.Command(bin, "del", "-exist", s.name, ip.String()))
+}
+
+// Add converts string to IP and adds it
+func (s *IPSetIP) Add(ip string) error {
+	ip_ := net.ParseIP(ip)
+	if ip_ == nil {
+		return fmt.Errorf("could not parse [%s] as ip", ip)
+	}
+	return s.AddIP(ip_)
+}
+
+// Delete converts string to IP and deletes it
+func (s *IPSetIP) Delete(ip string) error {
+	ip_ := net.ParseIP(ip)
+	if ip_ == nil {
+		return fmt.Errorf("could not parse [%s] as ip", ip)
+	}
+	return s.DeleteIP(ip_)
 }
 
 func (s *IPSetIP) Destroy() error {

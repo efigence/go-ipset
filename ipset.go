@@ -53,3 +53,13 @@ type Ipsets struct {
 		} `xml:"members"`
 	} `xml:"ipset"`
 }
+
+type IPSet interface {
+	Add(string) error
+	Delete(string) error
+	Create() error
+	Destroy() error
+	Swap(string) error
+	Exist() bool
+	Name() string
+}
